@@ -1,4 +1,5 @@
 class SessionsController < ApplicationController
+#before_filter :stop_two_sign_in, only: [:create, :new]
 
 	def new
 	end
@@ -18,4 +19,10 @@ class SessionsController < ApplicationController
 		sign_out
 		redirect_to root_path
 	end
+
+	private
+
+		def stop_two_sign_in
+			redirect_to root_path unless !signed_in?
+		end
 end

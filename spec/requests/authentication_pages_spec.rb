@@ -50,6 +50,18 @@ describe "Authentication" do
 		describe "for non-signed-in users" do
 			let(:user) {FactoryGirl.create(:user)}
 
+			before {visit root_path}
+
+			it {should_not have_selector('title', text: user.name)}
+
+			it {should_not have_link('Users', href: users_path)}
+			it {should_not have_link('Profile', href: user_path(user))}
+			it {should_not have_link('Settings', href: edit_user_path(user))}
+			it {should_not have_link('Sign out', href: signout_path)}
+
+			it {should have_link('Sign in', href: signin_path)}
+
+
 			describe "when attempting to visit a protected page" do
 				before do
 					visit edit_user_path(user)
@@ -101,6 +113,18 @@ describe "Authentication" do
 			end
 		end
 
+		describe "as admin user" do
+			let(:admin) {FactoryGirl.create(:admin)}
+
+			before {sign_in admin}
+
+			describe " submitting a delete request to users#destroy action as admin" do
+				before {delete user_path(admin)}
+				specify {response.should redirect_to(root_path)}
+			end
+		end
+
+
 		describe "as non-admin user" do
 			let(:user) {FactoryGirl.create(:user)}
 			let(:non_admin) {FactoryGirl.create(:user)}
@@ -110,6 +134,14 @@ describe "Authentication" do
 			describe "submitting a delete request to the users#destroy action" do
 				before {delete user_path(user)}
 				specify {response.should redirect_to(root_path)}
+			end
+
+			describe "accessable attributes" do
+				it "should not allow access to admin" do
+					expect do
+						non_admin.update_attributes(admin: true)
+					end.should raise_error
+				end
 			end
 		end
 	end
