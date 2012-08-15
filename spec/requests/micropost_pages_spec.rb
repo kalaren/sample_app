@@ -42,4 +42,27 @@ describe "MicropostPages" do
 			end
 		end
 	end
+
+	describe "sidebar micropost count" do
+		before {FactoryGirl.create(:micropost, user: user)}
+
+		describe "single post" do
+			before {visit root_path}
+			it {should have_content("1 micropost")}
+		end
+
+		describe "more than 1 post" do
+			before {FactoryGirl.create(:micropost, user: user, content: "foobar")}
+			before {visit root_path}
+			it {should have_content("2 microposts")}
+		end
+	end
+
+	describe "user cannot delete different users posts" do
+		before {FactoryGirl.create(:micropost, user: user)}
+		let(:user2) {FactoryGirl.create(:user)}
+		before {sign_in user2}
+		before {visit user_path(user)}
+		it {should_not have_link('delete')}
+	end
 end
