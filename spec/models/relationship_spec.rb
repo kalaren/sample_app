@@ -33,4 +33,12 @@ describe "Relationship" do
 		before {relationship.follower_id = nil}
 		it {should_not be_valid}
 	end
+
+	it "destroying relationships" do
+		relationships = follower.relationships
+		follower.relationships.destroy
+		relationships.each do |relationship|
+			Relationship.find_by_follower_id(follower.id).should be_nil
+		end
+	end
 end
